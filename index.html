@@ -1,0 +1,825 @@
+<!DOCTYPE html>
+<html lang="uk" data-theme="night">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ПАЛИВО</title>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Oswald:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+
+/* ══════════════════════════════════════
+   НІЧНА ТЕМА
+══════════════════════════════════════ */
+[data-theme="night"] {
+  --bg:            #080a08;
+  --surface:       #0f1210;
+  --surface2:      #141814;
+  --border:        #223022;
+  --border-strong: #2e422e;
+  --accent:        #3d6e32;
+  --accent2:       #68b030;
+  --text:          #c4d8ba;
+  --text2:         #7a9870;
+  --muted:         #445a40;
+  --input-bg:      #090b09;
+  --danger:        #c83030;
+  --danger-bg:     #130606;
+  --danger-border: #401818;
+  --chip-bg:       #1e0808;
+  --chip-border:   #4a1818;
+  --chip-text:     #e09090;
+  --total-bg:      #0a110a;
+  --scanline: rgba(0,0,0,.08);
+}
+
+/* ══════════════════════════════════════
+   ДЕННА ТЕМА
+══════════════════════════════════════ */
+[data-theme="day"] {
+  --bg:            #dde8d0;
+  --surface:       #f0f5e8;
+  --surface2:      #ffffff;
+  --border:        #7aaa5a;
+  --border-strong: #4a8a28;
+  --accent:        #2d6018;
+  --accent2:       #3a7a20;
+  --text:          #0a1a06;
+  --text2:         #2a4a18;
+  --muted:         #4a6a38;
+  --input-bg:      #ffffff;
+  --danger:        #aa1010;
+  --danger-bg:     #fde8e8;
+  --danger-border: #cc5555;
+  --chip-bg:       #fdd0d0;
+  --chip-border:   #cc4444;
+  --chip-text:     #880000;
+  --total-bg:      #e0edd0;
+  --scanline: rgba(255,255,255,0);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { transition: background .3s, color .3s; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Share Tech Mono', monospace;
+  min-height: 100vh;
+  padding: 16px 16px 40px;
+  font-size: 14px;
+  transition: background .3s, color .3s;
+}
+
+[data-theme="night"] body::before {
+  content: '';
+  position: fixed; inset: 0;
+  background: repeating-linear-gradient(
+    0deg, transparent, transparent 2px,
+    var(--scanline) 2px, var(--scanline) 4px
+  );
+  pointer-events: none;
+  z-index: 999;
+}
+
+.container { max-width: 480px; margin: 0 auto; }
+
+/* ══════════════════════════════════════
+   HEADER
+══════════════════════════════════════ */
+.header {
+  border: 2px solid var(--border-strong);
+  border-bottom: none;
+  padding: 12px 16px 12px 20px;
+  background: var(--surface2);
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  transition: background .3s, border-color .3s;
+}
+
+[data-theme="night"] .header {
+  background: linear-gradient(135deg, #141c14, #0a0d0a);
+}
+
+.header::before {
+  content: '';
+  position: absolute; top: 0; left: 0;
+  width: 5px; height: 100%;
+  background: var(--accent2);
+  transition: background .3s;
+}
+
+.header-left { padding-left: 8px; }
+
+.header-title {
+  font-family: 'Oswald', sans-serif;
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--accent2);
+  letter-spacing: 2px;
+  transition: color .3s;
+}
+
+[data-theme="day"] .header-title { color: var(--accent); }
+
+/* ══════════════════════════════════════
+   ПЕРЕМИКАЧ ДЕНЬ / НІЧ
+══════════════════════════════════════ */
+.theme-toggle {
+  display: flex; flex-direction: column;
+  align-items: center; gap: 4px;
+  cursor: pointer; user-select: none; flex-shrink: 0;
+}
+
+.toggle-track {
+  width: 56px; height: 28px;
+  border-radius: 14px;
+  border: 2px solid var(--border-strong);
+  background: var(--surface);
+  position: relative;
+  transition: background .3s, border-color .3s;
+  cursor: pointer;
+}
+
+[data-theme="night"] .toggle-track { background: #1a2a1a; border-color: var(--accent); }
+[data-theme="day"]   .toggle-track { background: #b8dfa0; border-color: var(--accent2); }
+
+.toggle-thumb {
+  position: absolute; top: 3px; left: 3px;
+  width: 18px; height: 18px; border-radius: 50%;
+  transition: transform .25s cubic-bezier(.4,0,.2,1), background .3s;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; line-height: 1;
+}
+
+[data-theme="night"] .toggle-thumb { background: #334a33; transform: translateX(0); }
+[data-theme="day"]   .toggle-thumb { background: var(--accent2); transform: translateX(28px); }
+
+.toggle-icons {
+  position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 5px; pointer-events: none; font-size: 10px;
+}
+
+.toggle-label {
+  font-family: 'Oswald', sans-serif;
+  font-size: 9px; letter-spacing: 2px;
+  color: var(--muted); text-transform: uppercase;
+  transition: color .3s;
+}
+
+[data-theme="day"] .toggle-label { color: var(--accent); font-weight: 600; }
+
+/* ══════════════════════════════════════
+   CARDS
+══════════════════════════════════════ */
+.card {
+  border: 2px solid var(--border);
+  border-top: none;
+  background: var(--surface);
+  padding: 16px;
+  transition: background .3s, border-color .3s;
+}
+
+[data-theme="day"] .card { box-shadow: 0 1px 4px rgba(0,0,0,.08); }
+
+.section-label {
+  font-size: 10px; color: var(--muted);
+  letter-spacing: 2px; text-transform: uppercase;
+  margin-bottom: 12px; padding-bottom: 6px;
+  border-bottom: 1px solid var(--border);
+  transition: color .3s, border-color .3s;
+  display: flex; align-items: center; gap: 6px;
+}
+
+.section-label::before {
+  content: ''; display: inline-block;
+  width: 3px; height: 10px;
+  background: var(--accent2); border-radius: 1px;
+}
+
+[data-theme="day"] .section-label::before { background: var(--accent); }
+
+/* ══════════════════════════════════════
+   FIELDS
+══════════════════════════════════════ */
+.field-row {
+  display: flex; align-items: center;
+  gap: 10px; margin-bottom: 10px;
+}
+.field-row:last-child { margin-bottom: 0; }
+
+label {
+  font-family: 'Oswald', sans-serif;
+  font-size: 13px; font-weight: 600;
+  color: var(--text2); letter-spacing: 1px;
+  min-width: 90px; flex-shrink: 0;
+  transition: color .3s;
+}
+
+[data-theme="day"] label { color: var(--text); }
+
+input[type="number"],
+input[type="date"],
+select {
+  flex: 1;
+  background: var(--input-bg);
+  border: 2px solid var(--border);
+  border-radius: 3px;
+  color: var(--text);
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 16px;
+  font-weight: bold;
+  padding: 9px 10px;
+  outline: none;
+  transition: border-color .15s, background .3s, color .3s;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+input[type="number"] { text-align: right; font-size: 18px; }
+
+input[type="number"]::placeholder {
+  color: var(--muted); opacity: 0.6; font-weight: normal;
+}
+
+[data-theme="day"] input[type="number"],
+[data-theme="day"] input[type="date"],
+[data-theme="day"] select {
+  border-color: #8ab870; color: #0a1a06; font-weight: 600;
+}
+
+input:focus, select:focus {
+  border-color: var(--accent2); outline: none;
+}
+
+[data-theme="day"] input:focus,
+[data-theme="day"] select:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(58,122,32,.15);
+}
+
+select { cursor: pointer; }
+
+[data-theme="night"] select option { background: #141814; }
+[data-theme="day"]   select option { background: #ffffff; color: #0a1a06; }
+
+input[type="date"]::-webkit-calendar-picker-indicator {
+  cursor: pointer;
+}
+[data-theme="night"] input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: invert(.7) sepia(1) saturate(2) hue-rotate(80deg);
+}
+
+.skel {
+  flex: 1; background: var(--input-bg);
+  border: 2px solid var(--border); border-radius: 3px;
+  padding: 9px 10px; color: var(--muted); font-size: 13px;
+  letter-spacing: 1px; animation: pulse 1.2s ease-in-out infinite;
+}
+
+/* ══════════════════════════════════════
+   FUEL ROWS (числові поля)
+══════════════════════════════════════ */
+.fuel-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 8px;
+  align-items: center;
+  margin-bottom: 8px;
+  padding: 10px 12px;
+  background: var(--surface2);
+  border: 2px solid var(--border);
+  border-left: 4px solid var(--accent2);
+  border-radius: 2px;
+  transition: background .3s, border-color .3s;
+}
+
+[data-theme="day"] .fuel-row {
+  border-left-color: var(--accent);
+  background: #f8faf4;
+  box-shadow: 0 1px 3px rgba(0,0,0,.06);
+}
+
+.fuel-row:last-child { margin-bottom: 0; }
+
+.fuel-name {
+  font-family: 'Oswald', sans-serif;
+  font-size: 13px; font-weight: 700;
+  color: var(--accent2); letter-spacing: 1px;
+  line-height: 1.3;
+  transition: color .3s;
+}
+
+[data-theme="day"] .fuel-name { color: var(--accent); }
+
+.fuel-unit {
+  font-size: 10px; color: var(--muted);
+  margin-left: 4px; transition: color .3s;
+}
+
+.fuel-ctrl { display: flex; align-items: center; gap: 6px; }
+.fuel-ctrl input { width: 100px; flex: none; }
+
+.btn-pm {
+  background: var(--surface);
+  border: 2px solid var(--border-strong);
+  color: var(--text2);
+  width: 40px; height: 40px;
+  font-size: 22px; cursor: pointer;
+  border-radius: 3px;
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Share Tech Mono', monospace;
+  transition: all .1s; font-weight: bold; line-height: 1;
+}
+
+[data-theme="day"] .btn-pm { background: #e8f5da; border-color: var(--border-strong); color: var(--accent); }
+.btn-pm:active { background: var(--accent); color: #fff; border-color: var(--accent); transform: scale(.93); }
+
+/* ══════════════════════════════════════
+   SUBMIT BUTTON
+══════════════════════════════════════ */
+.btn-submit {
+  width: 100%; padding: 16px;
+  background: var(--accent); border: 2px solid var(--accent2);
+  color: #fff; font-family: 'Oswald', sans-serif;
+  font-size: 17px; font-weight: 700;
+  letter-spacing: 4px; text-transform: uppercase;
+  cursor: pointer; transition: all .15s;
+  display: block; border-radius: 0;
+}
+
+[data-theme="day"] .btn-submit {
+  background: var(--accent); border-color: var(--accent);
+  font-size: 18px; box-shadow: 0 3px 8px rgba(45,96,24,.3);
+}
+
+.btn-submit:hover  { background: #4a8a28; }
+.btn-submit:active { background: #2d5a18; transform: translateY(1px); }
+.btn-submit:disabled {
+  background: var(--muted); color: rgba(255,255,255,.5);
+  cursor: not-allowed; border-color: var(--muted); box-shadow: none;
+}
+
+/* ══════════════════════════════════════
+   SEND STATUS
+══════════════════════════════════════ */
+.send-status {
+  padding: 11px 14px; font-size: 13px;
+  text-align: center; display: none;
+  border: 2px solid; border-top: none;
+  letter-spacing: 1px; font-weight: 600;
+}
+
+.send-status.ok {
+  display: block; color: var(--accent2);
+  border-color: var(--accent); background: var(--total-bg);
+}
+[data-theme="day"] .send-status.ok { color: var(--accent); background: #e0f0d0; }
+
+.send-status.err {
+  display: block; color: var(--danger);
+  border-color: var(--danger); background: var(--danger-bg);
+}
+[data-theme="day"] .send-status.err { background: #feeaea; }
+
+.send-status.loading {
+  display: block; color: #c09010;
+  border-color: #c09010; background: var(--surface);
+}
+
+/* ══════════════════════════════════════
+   MISSING BLOCK
+══════════════════════════════════════ */
+.missing-card {
+  border: 2px solid var(--danger); border-top: none;
+  background: var(--danger-bg); padding: 16px;
+  transition: background .3s, border-color .3s;
+}
+
+[data-theme="day"] .missing-card { background: #fff0f0; border-color: #cc3333; }
+
+.missing-head {
+  display: flex; justify-content: space-between;
+  align-items: center; margin-bottom: 12px;
+  padding-bottom: 8px; border-bottom: 1px solid var(--danger-border);
+}
+
+[data-theme="day"] .missing-head { border-bottom-color: #ddaaaa; }
+
+.missing-title {
+  font-family: 'Oswald', sans-serif;
+  font-size: 11px; color: var(--danger);
+  letter-spacing: 2px; text-transform: uppercase; font-weight: 700;
+}
+
+[data-theme="day"] .missing-title { color: #aa1010; }
+
+.btn-refresh {
+  background: transparent; border: 2px solid var(--danger-border);
+  color: var(--muted); font-family: 'Share Tech Mono', monospace;
+  font-size: 11px; padding: 4px 10px;
+  cursor: pointer; border-radius: 3px;
+  transition: all .15s; letter-spacing: 1px; font-weight: 600;
+}
+
+.btn-refresh:hover { border-color: var(--danger); color: var(--danger); }
+[data-theme="day"] .btn-refresh:hover { color: #aa1010; border-color: #cc3333; }
+.btn-refresh:disabled { opacity: .4; cursor: not-allowed; }
+
+.missing-grid { display: flex; flex-wrap: wrap; gap: 6px; }
+
+.missing-chip {
+  font-family: 'Oswald', sans-serif;
+  font-size: 13px; font-weight: 700;
+  color: var(--chip-text); padding: 5px 10px;
+  background: var(--chip-bg); border: 2px solid var(--chip-border);
+  border-radius: 3px; letter-spacing: 1px;
+}
+
+[data-theme="day"] .missing-chip { background: #ffd0d0; border-color: #cc4444; color: #880000; }
+
+.msg {
+  padding: 10px; text-align: center;
+  font-size: 13px; letter-spacing: 1px; font-weight: 600;
+}
+.msg.ok    { color: var(--accent2); }
+[data-theme="day"] .msg.ok { color: var(--accent); }
+.msg.muted { color: var(--muted); }
+.msg.warn  { color: #c09010; animation: pulse 1.2s ease-in-out infinite; }
+
+/* ══════════════════════════════════════
+   SYS LINE
+══════════════════════════════════════ */
+.sys-line {
+  font-size: 11px; color: var(--muted);
+  padding: 7px 16px;
+  border: 2px solid var(--border); border-top: none;
+  background: var(--bg);
+  display: flex; justify-content: space-between;
+  transition: background .3s, border-color .3s, color .3s;
+}
+
+[data-theme="day"] .sys-line { background: #d4deca; color: var(--text2); }
+
+/* ══════════════════════════════════════
+   ANIMATIONS
+══════════════════════════════════════ */
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
+.cursor {
+  display: inline-block; width: 9px; height: 16px;
+  background: var(--accent2); margin-left: 3px;
+  animation: blink 1s step-end infinite;
+  vertical-align: middle; transition: background .3s;
+}
+[data-theme="day"] .cursor { background: var(--accent); }
+
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.35} }
+
+</style>
+</head>
+<body>
+<div class="container">
+
+  <div class="header">
+    <div class="header-left">
+      <div class="header-title">ПАЛИВО <span class="cursor"></span></div>
+    </div>
+    <div class="theme-toggle" onclick="toggleTheme()" title="Перемикач день/ніч">
+      <div class="toggle-track">
+        <div class="toggle-icons"><span>🌙</span><span>☀️</span></div>
+        <div class="toggle-thumb"></div>
+      </div>
+      <div class="toggle-label" id="themeLabel">NIGHT</div>
+    </div>
+  </div>
+
+  <!-- РЕКВІЗИТИ -->
+  <div class="card">
+    <div class="section-label">Реквізити</div>
+    <div class="field-row">
+      <label>ДАТА</label>
+      <input type="date" id="date" />
+    </div>
+    <div class="field-row">
+      <label>МВГ</label>
+      <div id="mvgWrap" style="flex:1">
+        <div class="skel">⏳ завантаження...</div>
+      </div>
+    </div>
+    <div class="field-row">
+      <label>ПАЛЬНЕ</label>
+      <select id="fuel">
+        <option value="">— тип пального —</option>
+        <option value="ДП">ДП</option>
+        <option value="А-80">А-80</option>
+        <option value="А-92">А-92</option>
+        <option value="А-95">А-95</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- ДАНІ -->
+  <div class="card">
+    <div class="section-label">Дані за добу</div>
+
+    <div class="fuel-row">
+      <div>
+        <span class="fuel-name">ВИКОРИСТАНО</span>
+        <span class="fuel-unit">л / добу</span>
+      </div>
+      <div class="fuel-ctrl">
+        <button class="btn-pm" onclick="dec('used')">−</button>
+        <input type="number" id="used" value="" placeholder="0" min="0" step="1">
+        <button class="btn-pm" onclick="inc('used')">+</button>
+      </div>
+    </div>
+
+    <div class="fuel-row">
+      <div>
+        <span class="fuel-name">ЗАЛИШОК</span>
+        <span class="fuel-unit">л на МВГ</span>
+      </div>
+      <div class="fuel-ctrl">
+        <button class="btn-pm" onclick="dec('remain')">−</button>
+        <input type="number" id="remain" value="" placeholder="0" min="0" step="1">
+        <button class="btn-pm" onclick="inc('remain')">+</button>
+      </div>
+    </div>
+  </div>
+
+  <button class="btn-submit" id="btnSend" onclick="sendData()" disabled>
+    ▶ ВІДПРАВИТИ В ТАБЛИЦЮ
+  </button>
+  <div class="send-status" id="sendStatus"></div>
+
+  <!-- НЕ НАДАЛИ ВІДОМОСТІ -->
+  <div class="missing-card">
+    <div class="missing-head">
+      <span class="missing-title">⚠ Не надали відомості</span>
+      <button class="btn-refresh" id="btnRefresh" onclick="loadData()">↻ ОНОВИТИ</button>
+    </div>
+    <div id="missingList">
+      <div class="msg warn">⏳ завантаження...</div>
+    </div>
+  </div>
+
+  <div class="sys-line">
+    <span id="clock">—</span>
+    <span>v1.0 · ПАЛИВО</span>
+  </div>
+
+</div>
+<script>
+// ═══════════════════════════════════════════════════════
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyxEs8xthvjYlI0PZV_XhHOAOkb-NtHhsZ0MmVKs2JlKDxk9ecGg5Vpsp1MbEKgOl2O/exec';
+// ═══════════════════════════════════════════════════════
+
+const FIELDS = ['used', 'remain'];
+const API_KEY = 'BK2026';
+const STORAGE_MVG_KEY = 'fuel_selected_mvg';
+let currentMvgList = [];
+
+// ── Тема ──────────────────────────────────────────────
+function toggleTheme() {
+  const html = document.documentElement;
+  const next = html.getAttribute('data-theme') === 'night' ? 'day' : 'night';
+  html.setAttribute('data-theme', next);
+  document.getElementById('themeLabel').textContent = next === 'day' ? 'DAY' : 'NIGHT';
+  try { localStorage.setItem('fuel_theme', next); } catch(e){}
+}
+
+(function(){
+  try {
+    const saved = localStorage.getItem('fuel_theme');
+    if (saved) {
+      document.documentElement.setAttribute('data-theme', saved);
+      const lbl = document.getElementById('themeLabel');
+      if (lbl) lbl.textContent = saved === 'day' ? 'DAY' : 'NIGHT';
+    }
+  } catch(e){}
+})();
+
+// ── Дата ──────────────────────────────────────────────
+function todayISO() { return new Date().toISOString().split('T')[0]; }
+function todayUa() {
+  const d = new Date(), p = n => String(n).padStart(2,'0');
+  return `${p(d.getDate())}.${p(d.getMonth()+1)}.${d.getFullYear()}`;
+}
+function isoToUa(v) {
+  if (!v) return '';
+  const [y,m,d] = v.split('-');
+  return `${d}.${m}.${y}`;
+}
+
+// ── Поля ─────────────────────────────────────────────
+function getInputValue(id) {
+  const val = document.getElementById(id).value;
+  if (val === '') return 0;
+  return parseFloat(val) || 0;
+}
+
+function inc(id) {
+  const e = document.getElementById(id);
+  e.value = getInputValue(id) + 1;
+}
+
+function dec(id) {
+  const e = document.getElementById(id);
+  const val = getInputValue(id);
+  e.value = val > 0 ? val - 1 : '';
+}
+
+function setupAutoClear() {
+  FIELDS.forEach(id => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.addEventListener('focus', function() {
+      if (this.value === '0' || this.value === '') this.value = '';
+    });
+    el.addEventListener('blur', function() {
+      if (this.value === '') return;
+      let num = parseFloat(this.value);
+      if (isNaN(num) || num < 0) num = 0;
+      this.value = num === 0 ? '' : num;
+    });
+  });
+}
+
+// ── Збереження МВГ ────────────────────────────────────
+function saveMvg(val) {
+  if (val) try { localStorage.setItem(STORAGE_MVG_KEY, val); } catch(e){}
+}
+function getSavedMvg() {
+  try { return localStorage.getItem(STORAGE_MVG_KEY); } catch(e) { return null; }
+}
+
+// ── Select МВГ ───────────────────────────────────────
+function renderMvgSelect(mvgs) {
+  const wrap = document.getElementById('mvgWrap');
+  if (!mvgs || mvgs.length === 0) {
+    wrap.innerHTML = '<div class="skel" style="color:var(--danger)">⚠ список порожній</div>';
+    return;
+  }
+
+  currentMvgList = mvgs;
+  const sel = document.createElement('select');
+  sel.id = 'mvg';
+
+  const ph = document.createElement('option');
+  ph.value = ''; ph.textContent = '— оберіть МВГ —';
+  ph.disabled = true;
+  if (!getSavedMvg()) ph.selected = true;
+  sel.appendChild(ph);
+
+  mvgs.forEach(name => {
+    const o = document.createElement('option');
+    o.value = o.textContent = name;
+    sel.appendChild(o);
+  });
+
+  wrap.innerHTML = '';
+  wrap.appendChild(sel);
+
+  const saved = getSavedMvg();
+  if (saved && mvgs.includes(saved)) sel.value = saved;
+
+  sel.addEventListener('change', function() {
+    if (this.value) saveMvg(this.value);
+  });
+
+  document.getElementById('btnSend').disabled = false;
+}
+
+// ── Відсутні ─────────────────────────────────────────
+function renderMissing(list) {
+  const el = document.getElementById('missingList');
+  if (!list) {
+    el.innerHTML = '<div class="msg muted">⚠ Не вдалось отримати дані.<br>Перевірте SCRIPT_URL.</div>';
+    return;
+  }
+  if (list.length === 0) {
+    el.innerHTML = '<div class="msg ok">✓ Всі МВГ надали відомості</div>';
+    return;
+  }
+  el.innerHTML = '<div class="missing-grid">'
+    + list.map(n => `<div class="missing-chip">${n}</div>`).join('')
+    + '</div>';
+}
+
+// ── Завантажити з таблиці ────────────────────────────
+async function loadData() {
+  const btn = document.getElementById('btnRefresh');
+  if (btn) { btn.disabled = true; btn.textContent = '↻ ...'; }
+  document.getElementById('missingList').innerHTML = '<div class="msg warn">⏳ завантаження...</div>';
+
+  try {
+    const date = isoToUa(document.getElementById('date').value) || todayUa();
+    const res  = await fetch(`${SCRIPT_URL}?action=init&date=${encodeURIComponent(date)}&apiKey=${API_KEY}`, { cache: 'no-store' });
+    const data = await res.json();
+
+    if (data.mvgs && !document.getElementById('mvg')) {
+      renderMvgSelect(data.mvgs);
+    } else if (data.mvgs && document.getElementById('mvg')) {
+      currentMvgList = data.mvgs;
+      const sel = document.getElementById('mvg');
+      const curVal = sel.value;
+      const ph = sel.querySelector('option[value=""]');
+      sel.innerHTML = '';
+      sel.appendChild(ph);
+      data.mvgs.forEach(name => {
+        const o = document.createElement('option');
+        o.value = o.textContent = name;
+        sel.appendChild(o);
+      });
+      if (curVal && data.mvgs.includes(curVal)) {
+        sel.value = curVal;
+      } else {
+        const saved = getSavedMvg();
+        if (saved && data.mvgs.includes(saved)) sel.value = saved;
+      }
+    }
+    renderMissing(data.missing ?? null);
+  } catch(e) {
+    console.error(e);
+    renderMissing(null);
+    if (!document.getElementById('mvg')) {
+      document.getElementById('mvgWrap').innerHTML =
+        '<div class="skel" style="color:var(--danger)">⚠ помилка з\'єднання</div>';
+    }
+  } finally {
+    if (btn) { btn.disabled = false; btn.textContent = '↻ ОНОВИТИ'; }
+  }
+}
+
+// ── Відправити ───────────────────────────────────────
+async function sendData() {
+  const mvgEl  = document.getElementById('mvg');
+  const fuelEl = document.getElementById('fuel');
+  const dateVal = document.getElementById('date').value;
+
+  if (!mvgEl || !mvgEl.value)  { showSend('err','⚠ Оберіть МВГ');          return; }
+  if (!fuelEl.value)           { showSend('err','⚠ Оберіть тип пального'); return; }
+  if (!dateVal)                { showSend('err','⚠ Вкажіть дату');          return; }
+
+  const payload = {
+    apiKey: API_KEY,
+    action: 'submit',
+    date:   isoToUa(dateVal),
+    mvg:    mvgEl.value,
+    fuel:   fuelEl.value,
+    used:   getInputValue('used'),
+    remain: getInputValue('remain'),
+  };
+
+  document.getElementById('btnSend').disabled = true;
+  showSend('loading','⏳ Відправляємо...');
+
+  try {
+    await fetch(SCRIPT_URL, {
+      method: 'POST', mode: 'no-cors',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    showSend('ok', `✓ Записано: ${payload.mvg} · ${payload.fuel} · ${payload.date}`);
+    FIELDS.forEach(id => { document.getElementById(id).value = ''; });
+    setTimeout(loadData, 1800);
+  } catch(e) {
+    console.error(e);
+    showSend('err','✗ Помилка зʼєднання. Перевірте URL скрипту.');
+  } finally {
+    document.getElementById('btnSend').disabled = false;
+  }
+}
+
+function showSend(type, msg) {
+  const el = document.getElementById('sendStatus');
+  el.className = 'send-status ' + type;
+  el.textContent = msg;
+}
+
+// ── Годинник ─────────────────────────────────────────
+function tick() {
+  const d = new Date(), p = n => String(n).padStart(2,'0');
+  document.getElementById('clock').textContent =
+    `${p(d.getDate())}.${p(d.getMonth()+1)}.${d.getFullYear()} ${p(d.getHours())}:${p(d.getMinutes())}`;
+}
+tick(); setInterval(tick, 30000);
+
+// ── Init ─────────────────────────────────────────────
+const dateInput = document.getElementById('date');
+if (dateInput) {
+  dateInput.value = todayISO();
+  dateInput.addEventListener('change', () => {
+    document.getElementById('missingList').innerHTML = '<div class="msg warn">⏳ завантаження...</div>';
+    loadData();
+  });
+}
+setupAutoClear();
+loadData();
+setInterval(loadData, 120000);
+</script>
+</body>
+</html>
