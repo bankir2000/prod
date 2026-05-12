@@ -504,9 +504,15 @@ input[type="date"]::-webkit-calendar-picker-indicator {
       <input type="date" id="date" />
     </div>
     <div class="field-row">
+      <label>ПІДРОЗДІЛ</label>
+      <div id="unitWrap" style="flex:1">
+        <div class="skel">⏳ завантаження...</div>
+      </div>
+    </div>
+    <div class="field-row">
       <label>МВГ</label>
       <div id="mvgWrap" style="flex:1">
-        <div class="skel">⏳ завантаження...</div>
+        <div class="skel" id="mvgSkel">— спочатку підрозділ —</div>
       </div>
     </div>
     <div class="field-row">
@@ -568,19 +574,20 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 
   <div class="sys-line">
     <span id="clock">—</span>
-    <span>v1.0 · ПАЛИВО</span>
+    <span>v1.2 · ПАЛИВО</span>
   </div>
 
 </div>
 <script>
 // ═══════════════════════════════════════════════════════
-const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyxEs8xthvjYlI0PZV_XhHOAOkb-NtHhsZ0MmVKs2JlKDxk9ecGg5Vpsp1MbEKgOl2O/exec';
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzwkKtZTvnUS8ZCfpZ2pAyFpFGUYAecy--DbU-b2FIbWdKa7tPE2W1DACePnKtFreK9/exec';
 // ═══════════════════════════════════════════════════════
 
 const FIELDS = ['used', 'remain'];
 const API_KEY = 'BK2026';
-const STORAGE_MVG_KEY = 'fuel_selected_mvg';
-let currentMvgList = [];
+const STORAGE_UNIT_KEY = 'fuel_selected_unit';
+const STORAGE_MVG_KEY  = 'fuel_selected_mvg';
+let refData = { units: [], map: {} };
 
 // ── Тема ──────────────────────────────────────────────
 function toggleTheme() {
@@ -648,30 +655,65 @@ function setupAutoClear() {
   });
 }
 
-// ── Збереження МВГ ────────────────────────────────────
-function saveMvg(val) {
-  if (val) try { localStorage.setItem(STORAGE_MVG_KEY, val); } catch(e){}
-}
-function getSavedMvg() {
-  try { return localStorage.getItem(STORAGE_MVG_KEY); } catch(e) { return null; }
+// ── Збереження ───────────────────────────────────────
+function saveUnit(v) { if (v) try { localStorage.setItem(STORAGE_UNIT_KEY, v); } catch(e){} }
+function saveMvg(v)  { if (v) try { localStorage.setItem(STORAGE_MVG_KEY,  v); } catch(e){} }
+function getSavedUnit() { try { return localStorage.getItem(STORAGE_UNIT_KEY); } catch(e) { return null; } }
+function getSavedMvg()  { try { return localStorage.getItem(STORAGE_MVG_KEY);  } catch(e) { return null; } }
+
+// ── Select підрозділу ─────────────────────────────────
+function renderUnitSelect(units) {
+  const wrap = document.getElementById('unitWrap');
+  if (!units || units.length === 0) {
+    wrap.innerHTML = '<div class="skel" style="color:var(--danger)">⚠ підрозділи не знайдено</div>';
+    return;
+  }
+  const sel = document.createElement('select');
+  sel.id = 'unit';
+
+  const ph = document.createElement('option');
+  ph.value = ''; ph.textContent = '— оберіть підрозділ —';
+  ph.disabled = true; ph.selected = true;
+  sel.appendChild(ph);
+
+  units.forEach(name => {
+    const o = document.createElement('option');
+    o.value = o.textContent = name;
+    sel.appendChild(o);
+  });
+
+  wrap.innerHTML = '';
+  wrap.appendChild(sel);
+
+  const saved = getSavedUnit();
+  if (saved && units.includes(saved)) {
+    sel.value = saved;
+    renderMvgSelect(refData.map[saved] || []);
+  } else {
+    renderMvgSelect([]);
+  }
+
+  sel.addEventListener('change', function() {
+    saveUnit(this.value);
+    renderMvgSelect(refData.map[this.value] || []);
+  });
 }
 
-// ── Select МВГ ───────────────────────────────────────
+// ── Select МВГ (фільтрований) ─────────────────────────
 function renderMvgSelect(mvgs) {
   const wrap = document.getElementById('mvgWrap');
   if (!mvgs || mvgs.length === 0) {
-    wrap.innerHTML = '<div class="skel" style="color:var(--danger)">⚠ список порожній</div>';
+    wrap.innerHTML = '<div class="skel" id="mvgSkel">— спочатку підрозділ —</div>';
+    document.getElementById('btnSend').disabled = true;
     return;
   }
 
-  currentMvgList = mvgs;
   const sel = document.createElement('select');
   sel.id = 'mvg';
 
   const ph = document.createElement('option');
   ph.value = ''; ph.textContent = '— оберіть МВГ —';
-  ph.disabled = true;
-  if (!getSavedMvg()) ph.selected = true;
+  ph.disabled = true; ph.selected = true;
   sel.appendChild(ph);
 
   mvgs.forEach(name => {
@@ -686,9 +728,7 @@ function renderMvgSelect(mvgs) {
   const saved = getSavedMvg();
   if (saved && mvgs.includes(saved)) sel.value = saved;
 
-  sel.addEventListener('change', function() {
-    if (this.value) saveMvg(this.value);
-  });
+  sel.addEventListener('change', function() { saveMvg(this.value); });
 
   document.getElementById('btnSend').disabled = false;
 }
@@ -720,33 +760,19 @@ async function loadData() {
     const res  = await fetch(`${SCRIPT_URL}?action=init&date=${encodeURIComponent(date)}&apiKey=${API_KEY}`, { cache: 'no-store' });
     const data = await res.json();
 
-    if (data.mvgs && !document.getElementById('mvg')) {
-      renderMvgSelect(data.mvgs);
-    } else if (data.mvgs && document.getElementById('mvg')) {
-      currentMvgList = data.mvgs;
-      const sel = document.getElementById('mvg');
-      const curVal = sel.value;
-      const ph = sel.querySelector('option[value=""]');
-      sel.innerHTML = '';
-      sel.appendChild(ph);
-      data.mvgs.forEach(name => {
-        const o = document.createElement('option');
-        o.value = o.textContent = name;
-        sel.appendChild(o);
-      });
-      if (curVal && data.mvgs.includes(curVal)) {
-        sel.value = curVal;
-      } else {
-        const saved = getSavedMvg();
-        if (saved && data.mvgs.includes(saved)) sel.value = saved;
+    if (data.units) {
+      refData = { units: data.units, map: data.map || {} };
+      // Рендер підрозділів тільки при першому завантаженні
+      if (!document.getElementById('unit')) {
+        renderUnitSelect(data.units);
       }
     }
     renderMissing(data.missing ?? null);
   } catch(e) {
     console.error(e);
     renderMissing(null);
-    if (!document.getElementById('mvg')) {
-      document.getElementById('mvgWrap').innerHTML =
+    if (!document.getElementById('unit')) {
+      document.getElementById('unitWrap').innerHTML =
         '<div class="skel" style="color:var(--danger)">⚠ помилка з\'єднання</div>';
     }
   } finally {
@@ -756,18 +782,21 @@ async function loadData() {
 
 // ── Відправити ───────────────────────────────────────
 async function sendData() {
-  const mvgEl  = document.getElementById('mvg');
-  const fuelEl = document.getElementById('fuel');
+  const unitEl  = document.getElementById('unit');
+  const mvgEl   = document.getElementById('mvg');
+  const fuelEl  = document.getElementById('fuel');
   const dateVal = document.getElementById('date').value;
 
-  if (!mvgEl || !mvgEl.value)  { showSend('err','⚠ Оберіть МВГ');          return; }
-  if (!fuelEl.value)           { showSend('err','⚠ Оберіть тип пального'); return; }
-  if (!dateVal)                { showSend('err','⚠ Вкажіть дату');          return; }
+  if (!unitEl || !unitEl.value) { showSend('err','⚠ Оберіть підрозділ');    return; }
+  if (!mvgEl  || !mvgEl.value)  { showSend('err','⚠ Оберіть МВГ');          return; }
+  if (!fuelEl.value)             { showSend('err','⚠ Оберіть тип пального'); return; }
+  if (!dateVal)                  { showSend('err','⚠ Вкажіть дату');          return; }
 
   const payload = {
     apiKey: API_KEY,
     action: 'submit',
     date:   isoToUa(dateVal),
+    unit:   unitEl.value,
     mvg:    mvgEl.value,
     fuel:   fuelEl.value,
     used:   getInputValue('used'),
@@ -783,7 +812,7 @@ async function sendData() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload)
     });
-    showSend('ok', `✓ Записано: ${payload.mvg} · ${payload.fuel} · ${payload.date}`);
+    showSend('ok', `✓ ${payload.unit} · ${payload.mvg} · ${payload.fuel} · ${payload.date}`);
     FIELDS.forEach(id => { document.getElementById(id).value = ''; });
     setTimeout(loadData, 1800);
   } catch(e) {
