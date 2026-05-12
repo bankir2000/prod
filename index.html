@@ -559,6 +559,47 @@ input[type="number"] { -moz-appearance: textfield; }
   .btn-refresh { padding: 8px 16px; font-size: 12px; }
 }
 
+/* ══════════════════════════════════════
+   ВЧОРАШНІЙ ЗАЛИШОК
+══════════════════════════════════════ */
+.prev-remain-row {
+  display: flex; align-items: center; gap: 10px;
+  margin-bottom: 10px;
+  padding: 10px 12px;
+  background: var(--surface2);
+  border: 2px solid var(--border);
+  border-left: 4px solid var(--muted);
+  border-radius: 2px;
+  transition: background .3s, border-color .3s;
+}
+.prev-remain-row.loaded {
+  border-left-color: var(--accent2);
+}
+[data-theme="day"] .prev-remain-row.loaded {
+  border-left-color: var(--accent);
+}
+.prev-remain-label {
+  font-family: 'Oswald', sans-serif;
+  font-size: 13px; font-weight: 700;
+  color: var(--muted); letter-spacing: 1px;
+  flex: 1; line-height: 1.3;
+  transition: color .3s;
+}
+.prev-remain-row.loaded .prev-remain-label { color: var(--text2); }
+[data-theme="day"] .prev-remain-row.loaded .prev-remain-label { color: var(--text); }
+.prev-remain-val {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 22px; font-weight: bold;
+  color: var(--muted); min-width: 70px; text-align: right;
+  transition: color .3s;
+}
+.prev-remain-row.loaded .prev-remain-val { color: var(--accent2); }
+[data-theme="day"] .prev-remain-row.loaded .prev-remain-val { color: var(--accent); }
+.prev-remain-unit {
+  font-size: 11px; color: var(--muted);
+  font-family: 'Share Tech Mono', monospace;
+}
+
 </style>
 </head>
 <body>
@@ -624,6 +665,14 @@ input[type="number"] { -moz-appearance: textfield; }
       </div>
     </div>
 
+    <div class="prev-remain-row" id="prevRemainRow">
+      <div class="prev-remain-label" id="prevRemainLabel">Залишок за вчора, л</div>
+      <div>
+        <span class="prev-remain-val" id="prevRemainVal">—</span>
+        <span class="prev-remain-unit"> л</span>
+      </div>
+    </div>
+
     <div class="fuel-row">
       <div>
         <span class="fuel-name">ЗАЛИШОК</span>
@@ -655,13 +704,13 @@ input[type="number"] { -moz-appearance: textfield; }
 
   <div class="sys-line">
     <span id="clock">—</span>
-    <span>v1.2 · ПАЛИВО</span>
+    <span>v1.2 · Банкір</span>
   </div>
 
 </div>
 <script>
 // ═══════════════════════════════════════════════════════
-const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwMwgtaUUdHWsM_4FfJxq3s0xGEGWnM6PPvfrrsx3eV2V4dlgJRWchqoTbngPNEADSZ/exec';
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyFzDtyDDo7ievYoiMJ9SxeB_2Yv1lNpS3Lh5fuGcFDR73PIinLbRlKgCtVD-OOgwUq/exec';
 // ═══════════════════════════════════════════════════════
 
 const FIELDS = ['used', 'remain'];
@@ -780,10 +829,50 @@ function renderUnitSelect(units) {
   sel.addEventListener('change', function() {
     saveUnit(this.value);
     renderMvgSelect(refData.map[this.value] || []);
+    // Скинути вчорашній залишок поки МВГ не вибрано
+    document.getElementById('prevRemainRow').classList.remove('loaded');
+    document.getElementById('prevRemainVal').textContent = '—';
+    document.getElementById('prevRemainLabel').textContent = 'Залишок за вчора, л';
   });
 }
 
 // ── Select МВГ (фільтрований) ─────────────────────────
+// ── Завантажити залишок за вчора ─────────────────────
+async function fetchPrevRemain(mvgName) {
+  const row   = document.getElementById('prevRemainRow');
+  const label = document.getElementById('prevRemainLabel');
+  const val   = document.getElementById('prevRemainVal');
+
+  // Скинути стан
+  row.classList.remove('loaded');
+  val.textContent = '…';
+
+  if (!mvgName) { val.textContent = '—'; return; }
+
+  const dateVal = document.getElementById('date').value;
+  const dateUa  = isoToUa(dateVal) || todayUa();
+
+  try {
+    const res  = await fetch(
+      `${SCRIPT_URL}?action=prevRemain&date=${encodeURIComponent(dateUa)}&mvg=${encodeURIComponent(mvgName)}&apiKey=${API_KEY}`,
+      { cache: 'no-store' }
+    );
+    const data = await res.json();
+
+    if (data.remain !== null && data.remain !== undefined) {
+      label.textContent = `Залишок за ${data.prevDate}, л`;
+      val.textContent   = Number(data.remain).toFixed(1);
+      row.classList.add('loaded');
+    } else {
+      label.textContent = `Залишок за ${data.prevDate || 'вчора'}, л`;
+      val.textContent   = 'немає даних';
+    }
+  } catch(e) {
+    val.textContent = '—';
+    console.error('prevRemain error:', e);
+  }
+}
+
 function renderMvgSelect(mvgs) {
   const wrap = document.getElementById('mvgWrap');
   if (!mvgs || mvgs.length === 0) {
@@ -810,9 +899,15 @@ function renderMvgSelect(mvgs) {
   wrap.appendChild(sel);
 
   const saved = getSavedMvg();
-  if (saved && mvgs.includes(saved)) sel.value = saved;
+  if (saved && mvgs.includes(saved)) {
+    sel.value = saved;
+    fetchPrevRemain(saved);
+  }
 
-  sel.addEventListener('change', function() { saveMvg(this.value); });
+  sel.addEventListener('change', function() {
+    saveMvg(this.value);
+    fetchPrevRemain(this.value);
+  });
 
   document.getElementById('btnSend').disabled = false;
 }
@@ -929,6 +1024,9 @@ if (dateInput) {
   dateInput.addEventListener('change', () => {
     document.getElementById('missingList').innerHTML = '<div class="msg warn">⏳ завантаження...</div>';
     loadData();
+    // Оновити вчорашній залишок для поточного МВГ
+    const mvgEl = document.getElementById('mvg');
+    if (mvgEl && mvgEl.value) fetchPrevRemain(mvgEl.value);
   });
 }
 setupAutoClear();
