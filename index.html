@@ -11,25 +11,28 @@
    НІЧНА ТЕМА
 ══════════════════════════════════════ */
 [data-theme="night"] {
-  --bg:            #080a08;
-  --surface:       #0f1210;
-  --surface2:      #141814;
-  --border:        #223022;
-  --border-strong: #2e422e;
-  --accent:        #3d6e32;
-  --accent2:       #68b030;
-  --text:          #c4d8ba;
-  --text2:         #7a9870;
-  --muted:         #445a40;
-  --input-bg:      #090b09;
-  --danger:        #c83030;
-  --danger-bg:     #130606;
-  --danger-border: #401818;
-  --chip-bg:       #1e0808;
-  --chip-border:   #4a1818;
-  --chip-text:     #e09090;
-  --total-bg:      #0a110a;
-  --scanline: rgba(0,0,0,.08);
+  --bg:            #0d0f0d;
+  --surface:       #141914;
+  --surface2:      #1a201a;
+  --border:        #2a3d2a;
+  --border-strong: #3a5c3a;
+  --accent:        #4a8a38;
+  --accent2:       #7dd444;
+  --text:          #e8f5d8;
+  --text2:         #aad080;
+  --muted:         #6a8a60;
+  --label:         #c8e8a0;
+  --input-bg:      #101410;
+  --input-text:    #f0fce0;
+  --input-border:  #3a5a3a;
+  --danger:        #ff5555;
+  --danger-bg:     #1a0808;
+  --danger-border: #5a2020;
+  --chip-bg:       #2a0a0a;
+  --chip-border:   #6a2020;
+  --chip-text:     #ff9090;
+  --total-bg:      #0d140d;
+  --scanline: rgba(0,0,0,.06);
 }
 
 /* ══════════════════════════════════════
@@ -186,12 +189,13 @@ body {
 [data-theme="day"] .card { box-shadow: 0 1px 4px rgba(0,0,0,.08); }
 
 .section-label {
-  font-size: 10px; color: var(--muted);
-  letter-spacing: 2px; text-transform: uppercase;
-  margin-bottom: 12px; padding-bottom: 6px;
-  border-bottom: 1px solid var(--border);
+  font-size: 11px; color: var(--text2);
+  letter-spacing: 3px; text-transform: uppercase;
+  margin-bottom: 14px; padding-bottom: 8px;
+  border-bottom: 1px solid var(--border-strong);
   transition: color .3s, border-color .3s;
   display: flex; align-items: center; gap: 6px;
+  font-weight: 700;
 }
 
 .section-label::before {
@@ -213,36 +217,44 @@ body {
 
 label {
   font-family: 'Oswald', sans-serif;
-  font-size: 13px; font-weight: 600;
-  color: var(--text2); letter-spacing: 1px;
-  min-width: 90px; flex-shrink: 0;
+  font-size: 14px; font-weight: 700;
+  color: var(--label); letter-spacing: 1px;
+  min-width: 96px; flex-shrink: 0;
   transition: color .3s;
+  text-shadow: 0 0 8px rgba(125,212,68,.25);
 }
 
-[data-theme="day"] label { color: var(--text); }
+[data-theme="day"] label { color: var(--text); text-shadow: none; }
 
 input[type="number"],
 input[type="date"],
 select {
   flex: 1;
   background: var(--input-bg);
-  border: 2px solid var(--border);
-  border-radius: 3px;
-  color: var(--text);
+  border: 2px solid var(--input-border);
+  border-radius: 4px;
+  color: var(--input-text);
   font-family: 'Share Tech Mono', monospace;
   font-size: 16px;
   font-weight: bold;
-  padding: 9px 10px;
+  padding: 11px 12px;
   outline: none;
-  transition: border-color .15s, background .3s, color .3s;
+  transition: border-color .15s, background .3s, color .3s, box-shadow .15s;
   -webkit-appearance: none;
   appearance: none;
+  min-height: 46px;
 }
 
-input[type="number"] { text-align: right; font-size: 18px; }
+[data-theme="night"] input[type="number"],
+[data-theme="night"] input[type="date"],
+[data-theme="night"] select {
+  box-shadow: inset 0 1px 3px rgba(0,0,0,.5);
+}
+
+input[type="number"] { text-align: right; font-size: 20px; }
 
 input[type="number"]::placeholder {
-  color: var(--muted); opacity: 0.6; font-weight: normal;
+  color: var(--muted); opacity: 0.5; font-weight: normal;
 }
 
 [data-theme="day"] input[type="number"],
@@ -253,6 +265,7 @@ input[type="number"]::placeholder {
 
 input:focus, select:focus {
   border-color: var(--accent2); outline: none;
+  box-shadow: 0 0 0 3px rgba(125,212,68,.2), inset 0 1px 3px rgba(0,0,0,.4);
 }
 
 [data-theme="day"] input:focus,
@@ -263,7 +276,7 @@ input:focus, select:focus {
 
 select { cursor: pointer; }
 
-[data-theme="night"] select option { background: #141814; }
+[data-theme="night"] select option { background: #1a201a; color: #e8f5d8; }
 [data-theme="day"]   select option { background: #ffffff; color: #0a1a06; }
 
 input[type="date"]::-webkit-calendar-picker-indicator {
@@ -307,11 +320,13 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 
 .fuel-name {
   font-family: 'Oswald', sans-serif;
-  font-size: 13px; font-weight: 700;
+  font-size: 15px; font-weight: 700;
   color: var(--accent2); letter-spacing: 1px;
   line-height: 1.3;
   transition: color .3s;
+  text-shadow: 0 0 10px rgba(125,212,68,.3);
 }
+[data-theme="day"] .fuel-name { text-shadow: none; }
 
 [data-theme="day"] .fuel-name { color: var(--accent); }
 
@@ -321,22 +336,26 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 }
 
 .fuel-ctrl { display: flex; align-items: center; gap: 6px; }
-.fuel-ctrl input { width: 100px; flex: none; }
+.fuel-ctrl input { width: 90px; flex: none; font-size: 20px; }
 
 .btn-pm {
-  background: var(--surface);
+  background: var(--surface2);
   border: 2px solid var(--border-strong);
-  color: var(--text2);
-  width: 40px; height: 40px;
-  font-size: 22px; cursor: pointer;
-  border-radius: 3px;
+  color: var(--accent2);
+  width: 48px; height: 48px;
+  font-size: 26px; cursor: pointer;
+  border-radius: 4px;
   display: flex; align-items: center; justify-content: center;
   font-family: 'Share Tech Mono', monospace;
   transition: all .1s; font-weight: bold; line-height: 1;
+  flex-shrink: 0;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
 }
 
+[data-theme="night"] .btn-pm { box-shadow: 0 2px 6px rgba(0,0,0,.5); }
 [data-theme="day"] .btn-pm { background: #e8f5da; border-color: var(--border-strong); color: var(--accent); }
-.btn-pm:active { background: var(--accent); color: #fff; border-color: var(--accent); transform: scale(.93); }
+.btn-pm:active { background: var(--accent); color: #fff; border-color: var(--accent2); transform: scale(.9); }
 
 /* ══════════════════════════════════════
    SUBMIT BUTTON
@@ -434,9 +453,9 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 .missing-chip {
   font-family: 'Oswald', sans-serif;
   font-size: 13px; font-weight: 700;
-  color: var(--chip-text); padding: 5px 10px;
+  color: var(--chip-text); padding: 6px 12px;
   background: var(--chip-bg); border: 2px solid var(--chip-border);
-  border-radius: 3px; letter-spacing: 1px;
+  border-radius: 4px; letter-spacing: 1px;
 }
 
 [data-theme="day"] .missing-chip { background: #ffd0d0; border-color: #cc4444; color: #880000; }
@@ -477,6 +496,68 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 [data-theme="day"] .cursor { background: var(--accent); }
 
 @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.35} }
+
+/* ══════════════════════════════════════
+   АДАПТИВ — смартфони / планшети
+══════════════════════════════════════ */
+
+/* Смартфони — до 420px */
+@media (max-width: 420px) {
+  body { padding: 8px 8px 32px; font-size: 13px; }
+  .container { max-width: 100%; }
+  .header { padding: 10px 12px 10px 18px; }
+  .header-title { font-size: 19px; letter-spacing: 1px; }
+  .card { padding: 12px 10px; }
+  label { font-size: 12px; min-width: 82px; }
+  input[type="number"],
+  input[type="date"],
+  select { font-size: 15px; padding: 10px 8px; min-height: 44px; }
+  input[type="number"] { font-size: 18px; }
+  .fuel-ctrl input { width: 80px; font-size: 18px; }
+  .btn-pm { width: 44px; height: 44px; font-size: 24px; }
+  .fuel-name { font-size: 13px; }
+  .btn-submit { font-size: 15px; padding: 15px; letter-spacing: 2px; }
+  .missing-chip { font-size: 12px; padding: 5px 9px; }
+  .sys-line { font-size: 10px; padding: 6px 10px; }
+}
+
+/* Планшети — 481px і більше */
+@media (min-width: 481px) {
+  .container { max-width: 560px; }
+  label { font-size: 15px; min-width: 110px; }
+  input[type="number"],
+  input[type="date"],
+  select { font-size: 17px; padding: 12px 14px; }
+  input[type="number"] { font-size: 22px; }
+  .fuel-ctrl input { width: 110px; font-size: 22px; }
+  .btn-pm { width: 52px; height: 52px; font-size: 28px; }
+  .fuel-name { font-size: 16px; }
+  .btn-submit { font-size: 19px; padding: 18px; }
+  .missing-chip { font-size: 14px; padding: 7px 14px; }
+}
+
+/* Великі планшети — 768px і більше */
+@media (min-width: 768px) {
+  .container { max-width: 640px; }
+  body { padding: 24px 24px 48px; }
+  label { font-size: 16px; min-width: 120px; }
+  .card { padding: 20px; }
+  .header { padding: 14px 20px 14px 28px; }
+  .header-title { font-size: 26px; }
+}
+
+/* Прибираємо скролл на цифрових інпутах */
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+input[type="number"] { -moz-appearance: textfield; }
+
+/* Збільшені зони дотику для мобільних */
+@media (hover: none) and (pointer: coarse) {
+  .btn-pm { min-width: 48px; min-height: 48px; }
+  select, input[type="date"] { min-height: 48px; }
+  .btn-submit { min-height: 54px; }
+  .btn-refresh { padding: 8px 16px; font-size: 12px; }
+}
 
 </style>
 </head>
@@ -580,13 +661,14 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 </div>
 <script>
 // ═══════════════════════════════════════════════════════
-const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzwkKtZTvnUS8ZCfpZ2pAyFpFGUYAecy--DbU-b2FIbWdKa7tPE2W1DACePnKtFreK9/exec';
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyxEs8xthvjYlI0PZV_XhHOAOkb-NtHhsZ0MmVKs2JlKDxk9ecGg5Vpsp1MbEKgOl2O/exec';
 // ═══════════════════════════════════════════════════════
 
 const FIELDS = ['used', 'remain'];
 const API_KEY = 'BK2026';
 const STORAGE_UNIT_KEY = 'fuel_selected_unit';
 const STORAGE_MVG_KEY  = 'fuel_selected_mvg';
+const STORAGE_FUEL_KEY = 'fuel_selected_fuel';
 let refData = { units: [], map: {} };
 
 // ── Тема ──────────────────────────────────────────────
@@ -660,6 +742,8 @@ function saveUnit(v) { if (v) try { localStorage.setItem(STORAGE_UNIT_KEY, v); }
 function saveMvg(v)  { if (v) try { localStorage.setItem(STORAGE_MVG_KEY,  v); } catch(e){} }
 function getSavedUnit() { try { return localStorage.getItem(STORAGE_UNIT_KEY); } catch(e) { return null; } }
 function getSavedMvg()  { try { return localStorage.getItem(STORAGE_MVG_KEY);  } catch(e) { return null; } }
+function saveFuel(v)    { if (v) try { localStorage.setItem(STORAGE_FUEL_KEY, v); } catch(e){} }
+function getSavedFuel() { try { return localStorage.getItem(STORAGE_FUEL_KEY); } catch(e) { return null; } }
 
 // ── Select підрозділу ─────────────────────────────────
 function renderUnitSelect(units) {
@@ -813,6 +897,7 @@ async function sendData() {
       body: JSON.stringify(payload)
     });
     showSend('ok', `✓ ${payload.unit} · ${payload.mvg} · ${payload.fuel} · ${payload.date}`);
+    saveFuel(payload.fuel);
     FIELDS.forEach(id => { document.getElementById(id).value = ''; });
     setTimeout(loadData, 1800);
   } catch(e) {
@@ -847,6 +932,19 @@ if (dateInput) {
   });
 }
 setupAutoClear();
+// Зберігати тип пального при зміні
+(function(){
+  const fuelEl = document.getElementById('fuel');
+  if (fuelEl) fuelEl.addEventListener('change', function(){ saveFuel(this.value); });
+})();
+// Відновити тип пального
+(function(){
+  const saved = getSavedFuel();
+  if (saved) {
+    const fuelEl = document.getElementById('fuel');
+    if (fuelEl) fuelEl.value = saved;
+  }
+})();
 loadData();
 setInterval(loadData, 120000);
 </script>
