@@ -741,10 +741,10 @@ function toggleTheme() {
 })();
 
 // ── Дата ──────────────────────────────────────────────
-function todayISO() { return new Date().toISOString().split('T')[0]; }
-function todayUa() {
-  const d = new Date(), p = n => String(n).padStart(2,'0');
-  return `${p(d.getDate())}.${p(d.getMonth()+1)}.${d.getFullYear()}`;
+function todayISO() {
+  const d = new Date();
+  const p = n => String(n).padStart(2,'0');
+  return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}`;
 }
 function isoToUa(v) {
   if (!v) return '';
