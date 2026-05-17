@@ -695,7 +695,10 @@ input[type="number"] { -moz-appearance: textfield; }
   <div class="missing-card">
     <div class="missing-head">
       <span class="missing-title">⚠ Не надали відомості</span>
-      <button class="btn-refresh" id="btnRefresh" onclick="loadData()">↻ ОНОВИТИ</button>
+      <div style="display:flex;gap:6px">
+        <button class="btn-refresh" id="btnShare" onclick="shareMissing()" title="Поділитись списком">📋</button>
+        <button class="btn-refresh" id="btnRefresh" onclick="loadData()">↻ ОНОВИТИ</button>
+      </div>
     </div>
     <div id="missingList">
       <div class="msg warn">⏳ завантаження...</div>
@@ -1007,6 +1010,37 @@ function showSend(type, msg) {
   const el = document.getElementById('sendStatus');
   el.className = 'send-status ' + type;
   el.textContent = msg;
+}
+
+// ── Поділитись списком відсутніх ─────────────────────
+function shareMissing() {
+  const chips = document.querySelectorAll('#missingList .missing-chip');
+  if (chips.length === 0) {
+    const ok = document.querySelector('#missingList .msg.ok');
+    if (ok) { alert('✓ Всі МВГ надали відомості'); } else { alert('Список ще не завантажено'); }
+    return;
+  }
+
+  const dateVal = document.getElementById('date').value;
+  const dateStr = isoToUa(dateVal) || todayUa ? isoToUa(dateVal) : '—';
+  const names   = Array.from(chips).map(c => '• ' + c.textContent.trim()).join('\n');
+  const count   = chips.length;
+
+  const text =
+    `⚠️ ПАЛИВО · ${dateStr}\n` +
+    `Не надали відомості (${count} МВГ):\n\n` +
+    names;
+
+  if (navigator.share) {
+    navigator.share({ text }).catch(() => {});
+  } else {
+    navigator.clipboard.writeText(text).then(() => {
+      const btn = document.getElementById('btnShare');
+      const orig = btn.textContent;
+      btn.textContent = '✓';
+      setTimeout(() => { btn.textContent = orig; }, 1500);
+    }).catch(() => { alert(text); });
+  }
 }
 
 // ── Годинник ─────────────────────────────────────────
