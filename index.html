@@ -696,7 +696,7 @@ input[type="number"] { -moz-appearance: textfield; }
     <div class="missing-head">
       <span class="missing-title">⚠ Не надали відомості</span>
       <div style="display:flex;gap:6px">
-        <button class="btn-refresh" id="btnShare" onclick="shareMissing()" title="Поділитись списком">📋</button>
+        <button class="btn-refresh" id="btnShare" onclick="shareMissing()" title="Поділитись списком">📋 Нагадування</button>
         <button class="btn-refresh" id="btnRefresh" onclick="loadData()">↻ ОНОВИТИ</button>
       </div>
     </div>
@@ -1028,7 +1028,7 @@ function shareMissing() {
 
   const text =
     `⚠️ ПАЛИВО · ${dateStr}\n` +
-    `Не надали відомості (${count} МВГ):\n\n` +
+    `Не надали відомості (${count} МВГ):\n` +
     names;
 
   if (navigator.share) {
