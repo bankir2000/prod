@@ -4,6 +4,15 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ПАЛИВО</title>
+<meta name="theme-color" content="#0d0f0d">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="ПАЛИВО">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="48x48" href="icons/favicon-48.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Oswald:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
 
@@ -1292,6 +1301,12 @@ renderHistory();
 })();
 loadData();
 setInterval(loadData, 120000);
+// ── PWA: реєстрація service worker ───────────────────
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('sw.js').catch((e) => console.error('SW error:', e));
+  });
+}
 </script>
 </body>
 </html>
